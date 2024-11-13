@@ -13,7 +13,7 @@ export const Header = () => {
       >
         <span className="px-2 py-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg text-white">
           Subhajeet's
-        </span>{" "}
+        </span>
         Blog
       </Link>
       <form>
@@ -33,7 +33,7 @@ export const Header = () => {
         </Button>
 
         <Link to="sign-in">
-          <Button gradientDuoTone="purpleToBlue">Sign In</Button>
+          <Button gradientDuoTone="purpleToBlue" outline>Sign In</Button>
         </Link>
         <Navbar.Toggle />
       </div>
