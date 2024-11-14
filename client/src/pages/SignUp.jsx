@@ -52,9 +52,8 @@ export const SignUp = () => {
             Blog
           </Link>
           <p className="text-md mt-5">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Distinctio
-            mollitia, eius nam aspernatur maxime obcaecati possimus voluptatum
-            est officia ullam aut ea voluptate nostrum!
+          This is a demo project. You can sign in with your email and
+          password or with Google.
           </p>
         </div>
 
