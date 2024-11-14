@@ -1,10 +1,17 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  signInFailed,
+  signInStart,
+  signInSuccess,
+} from "../redux/user/userSlice";
 export const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const {loading,error:errorMessage}=useSelector(state=>state.user);
   const navigate = useNavigate();
   const handleChangeInput = (e) => {
     setFormData({
@@ -15,12 +22,11 @@ export const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if ( !formData.email || !formData.password) {
-      return setErrorMessage("All fields are required");
+    if (!formData.email || !formData.password) {
+      dispatch(signInFailed("All fields are required"));
     }
     try {
-      setLoading(true);
-      setErrorMessage(null);
+      dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -28,15 +34,14 @@ export const SignIn = () => {
       });
       const data = await res.json();
       if (data.success === false) {
-        return setErrorMessage(data.message);
+        dispatch(signInFailed(data.message));
       }
-      setLoading(false);
       if (res.ok) {
+        dispatch(signInSuccess(data));
         navigate("/");
       }
     } catch (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
+      dispatch(signInFailed(error.message));
     }
   };
 
@@ -52,8 +57,8 @@ export const SignIn = () => {
             Blog
           </Link>
           <p className="text-md mt-5">
-          This is a demo project. You can sign in with your email and
-          password or with Google.
+            This is a demo project. You can sign in with your email and password
+            or with Google.
           </p>
         </div>
 
