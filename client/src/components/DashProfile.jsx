@@ -11,17 +11,17 @@ import {
   deleteStart,
   deleteSuccess,
   deleteFailed,
-  signOutSuccess
+  signOutSuccess,
 } from "../redux/user/userSlice";
-import {HiOutlineExclamationCircle} from "react-icons/hi";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 export const DashProfile = () => {
-  const { currentUser,error } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const filePickerRef = useRef(null);
   const [imageFileUploading, setImageFileUploading] = useState(false);
-  const [updateUserSuccess, setUpdateUserSuccess]=useState(null)
-  const [updateUserError, setUpdateUserError]=useState(null);
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+  const [updateUserError, setUpdateUserError] = useState(null);
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
@@ -29,12 +29,12 @@ export const DashProfile = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFileUploading(true)
+      setImageFileUploading(true);
       setImageFile(file);
       setImageFileUrl(URL.createObjectURL(file));
     }
   };
- 
+
   useEffect(() => {
     if (imageFile) {
       uploadImage();
@@ -55,7 +55,7 @@ export const DashProfile = () => {
     );
     const file = await res.json();
     setFormData({ ...formData, profilePicture: file.url });
-    setImageFileUploading(false)
+    setImageFileUploading(false);
   };
 
   const handleChange = (e) => {
@@ -71,15 +71,15 @@ export const DashProfile = () => {
     //   return;
     // }
 
-    if(imageFileUploading){
-      setUpdateUserError("Image is uploading")
+    if (imageFileUploading) {
+      setUpdateUserError("Image is uploading");
       return;
     }
 
     try {
       dispatch(updateStart());
-      if(imageFile){
-        await uploadImage()
+      if (imageFile) {
+        await uploadImage();
       }
       const res = await fetch(`/api/user/update/${currentUser._id}`, {
         method: "PUT",
@@ -89,7 +89,7 @@ export const DashProfile = () => {
       const data = await res.json();
       if (!res.ok) {
         dispatch(updateFailed(data.message));
-        setUpdateUserError(data.message)
+        setUpdateUserError(data.message);
         return;
       } else {
         dispatch(updateSuccess(data));
@@ -97,45 +97,44 @@ export const DashProfile = () => {
       }
     } catch (err) {
       dispatch(updateFailed(err.message));
-      setUpdateUserError(err.message)
+      setUpdateUserError(err.message);
     }
   };
 
   const handleDelete = async () => {
     setShowModal(false);
-    try{
+    try {
       dispatch(deleteStart());
-      const res=await fetch(`/api/user/delete/${currentUser._id}`,{
-        method:"DELETE"
-      })
-      const data=await res.json();
-      if(!res.ok){
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
         dispatch(deleteFailed(data.message));
         return;
       }
       dispatch(deleteSuccess(data));
       navigate("/sign-in");
-    }catch(err){  
+    } catch (err) {
       dispatch(deleteFailed(err.message));
     }
-  }
+  };
 
-  const handleSignOut = async() => {
-    try{
-      const res=await fetch("/api/user/signout",{
-        method:"POST",
-      })
-      const data=await res.json();
-      if(!res.ok){
+  const handleSignOut = async () => {
+    try {
+      const res = await fetch("/api/user/signout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
         console.log(data.message);
-      }else{
-        dispatch(signOutSuccess())
+      } else {
+        dispatch(signOutSuccess());
       }
-    }catch(err){
+    } catch (err) {
       console.log(err.message);
-      
     }
-  }
+  };
 
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
@@ -178,13 +177,33 @@ export const DashProfile = () => {
           placeholder="password"
           onChange={handleChange}
         />
-        <Button type="submit" gradientDuoTone="purpleToBlue" outline>
-          Update
+        <Button
+          type="submit"
+          gradientDuoTone="purpleToBlue"
+          outline
+          disabled={loading}
+        >
+          {loading ? "Loading..." : "Update"}
         </Button>
+        {currentUser.isAdmin && (
+          <Link to={"/create-post"}>
+            <Button
+              type="button"
+              gradientDuoTone="purpleToPink"
+              className="w-full"
+            >
+              Create a Post
+            </Button>
+          </Link>
+        )}
       </form>
       <div className="text-red-500 flex justify-between mt-5">
-        <span onClick={()=>setShowModal(true)} className="cursor-pointer">Delete Account</span>
-        <span onClick={handleSignOut} className="cursor-pointer">Sign Out</span>
+        <span onClick={() => setShowModal(true)} className="cursor-pointer">
+          Delete Account
+        </span>
+        <span onClick={handleSignOut} className="cursor-pointer">
+          Sign Out
+        </span>
       </div>
       {updateUserSuccess && <Alert color="success">{updateUserSuccess}</Alert>}
       {updateUserError && <Alert color="failure">{updateUserError}</Alert>}
@@ -195,20 +214,25 @@ export const DashProfile = () => {
         size="md"
         popup
         onClose={() => setShowModal(false)}
-    >
-      <Modal.Header />
-      <Modal.Body>
+      >
+        <Modal.Header />
+        <Modal.Body>
           <div className="text-center">
-            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto"/>
-            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Are you sure you want to delete your account</h3>
+            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              Are you sure you want to delete your account
+            </h3>
             <div className="flex justify-center gap-4">
-              <Button color="failure" onClick={handleDelete}>Yes, I'm sure</Button>
-              <Button color='gray' onClick={()=>setShowModal(false)}>No, cancel</Button>
+              <Button color="failure" onClick={handleDelete}>
+                Yes, I'm sure
+              </Button>
+              <Button color="gray" onClick={() => setShowModal(false)}>
+                No, cancel
+              </Button>
             </div>
           </div>
-      </Modal.Body>
-    </Modal>
-        
+        </Modal.Body>
+      </Modal>
     </div>
   );
 };
