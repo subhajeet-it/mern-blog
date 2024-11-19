@@ -5,6 +5,7 @@ import {
   HiArrowSmRight,
   HiDocument,
   HiDocumentText,
+  HiOutlineUserGroup,
 } from "react-icons/hi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { signOutSuccess } from "../redux/user/userSlice";
@@ -65,6 +66,18 @@ export const DashSideBar = () => {
               onClick={() => navigate("/dashboard?tab=posts")}
             >
               Posts
+            </Sidebar.Item>
+          )}
+          {currentUser.currentUser.isAdmin && (
+            
+            <Sidebar.Item
+              active={tab === "users"}
+              icon={HiOutlineUserGroup}
+              label={"User"}
+              labelColor="dark"
+              onClick={() => navigate("/dashboard?tab=users")}
+            >
+              Users
             </Sidebar.Item>
           )}
 
