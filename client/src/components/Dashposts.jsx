@@ -9,7 +9,7 @@ export const Dashposts = () => {
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete,setPostIdToDelete]= useState('');
-  console.log(userPosts);
+  // console.log(userPosts);
 
   useEffect(() => {
     const fetchPosts = async () => {
