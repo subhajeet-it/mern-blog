@@ -30,13 +30,13 @@ export const updateUser = async (req, res, next) => {
         //     return next(errorHanlder(400, "Username can contain only letters and numbers"));
         // }
         try {
-            const userUpdate = await User.findOneAndUpdate( { _id: req.params.userId }, { $set: { username: req.body.username, email: req.body.email, profilePicture: req.body.profilePicture, password: req.body.password } },{new: true});
+            const userUpdate = await User.findOneAndUpdate({ _id: req.params.userId }, { $set: { username: req.body.username, email: req.body.email, profilePicture: req.body.profilePicture, password: req.body.password } }, { new: true });
             const { password, ...rest } = userUpdate._doc;
             res.status(200).json(rest);
-        }catch(error){
+        } catch (error) {
             next(error);
         }
-            
+
     }
 
 }
@@ -55,9 +55,36 @@ export const deleteUser = async (req, res, next) => {
 }
 
 export const signout = (req, res) => {
-    try{
+    try {
         res.clearCookie("access_token").status(200).json("Signout successful");
-    }catch(error){
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getUsers = async (req, res, next) => {
+    if (!req.user.isAdmin) {
+        return next(errorHanlder(403, "You are not allow to get all users"));
+    }
+    try {
+
+        const startIndex = parseInt(req.query.startIndex) || 0;
+        const limit = parseInt(req.query.limit) || 9;
+        const sortDirection = req.query.sort === "asc" ? 1 : -1;
+        const users = await User.find().sort({ createdAt: sortDirection }).skip(startIndex).limit(limit);
+
+        const usersWithoutPassword = users.map((user) => {
+            const { password, ...rest } = user._doc;
+            return rest;
+        });
+
+        const totalUsers = await User.countDocuments();
+        const now = new Date();
+        const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        const lastMonthAgo = await User.countDocuments({ createdAt: { $gte: oneMonthAgo } });
+
+        res.status(200).json({ usersWithoutPassword, totalUsers, lastMonthAgo });
+    } catch (error) {
         next(error);
     }
 }
